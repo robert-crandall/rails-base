@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+bundle install
+bin/rails db:create
+bin/rails db:migrate
+bin/rails assets:precompile
+rm -f /app/tmp/pids/server.pid
+bin/rails server -b 0.0.0.0
+
+# Local:
+# rm -f tmp/pids/server.pid
+# bin/rails server -b 0.0.0.0 -p 3002
+
+# Warning! Changes to this file require rebuilding image
+# docker-compose build personal-tasks && docker stop personal-tasks && docker rm personal-tasks && docker-compose up -d personal-tasks
