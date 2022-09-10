@@ -17,7 +17,7 @@ A vanilla Rails 7 setup with some additional settings:
 ```
 docker build -t hello-world .
 
-docker run -d \
+docker run \
   --name hello-world \
   -p 3000:3000 \
   -e SECRET_KEY_BASE={$SECRET_KEY_BASE} \
@@ -27,3 +27,8 @@ docker run -d \
   -e DATABASE={$DATABASE} \
   hello-world
 ```
+
+## Inspiration
+
+I looked at [nickjj/docker-rails-example](https://github.com/nickjj/docker-rails-example) for a lot of code examples! I wanted a base closer to
+vanilla rails, but the work nickjj did is quite good!
