@@ -7,6 +7,11 @@ A vanilla Rails 7 setup with some additional settings:
 - A dockerfile geared towards Kubernetes
 - A ready to go GitHub actions for uploading to GHCR
 
+## New Project
+
+- Copy `.env.example` to `.env`
+- Use `direnv allow` to allow local development
+- Copy `publish.yml.example` to `.github/workflows/publish.yml` and modify `hello-world` to the app name
 ## Building docker image
 
 ```
