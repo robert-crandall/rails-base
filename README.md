@@ -5,6 +5,7 @@ A vanilla Rails 7 setup with some additional settings:
 - Postgres as the DB
 - Sorbet for type checking
 - A dockerfile geared towards Kubernetes
+- Use Webpack instead of sprockets
 - A ready to go GitHub actions for uploading to GHCR
 
 ## New Project

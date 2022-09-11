@@ -1,60 +1,51 @@
-FROM ruby:3.1.2-slim-bullseye AS assets
+ARG RUBY_VERSION="3.1.2-alpine"
+FROM ruby:${RUBY_VERSION} AS builder
+
+ARG BUNDLER_VERSION="2.3.13"
+ARG RAILS_ENV="production"
+ARG RAILS_LOG_TO_STDOUT=true
+
+RUN apk -U upgrade && apk add --no-cache \
+   postgresql-dev nodejs yarn build-base
 
 WORKDIR /app
 
-RUN bash -c "set -o pipefail && apt-get update \
-  && apt-get install -y --no-install-recommends build-essential curl libpq-dev \
-  && apt-get clean \
-  && useradd --create-home ruby \
-  && chown ruby:ruby -R /app"
+COPY Gemfile Gemfile.lock ./
 
-USER ruby
+ENV LANG=C.UTF-8 \
+   BUNDLE_JOBS=4 \
+   BUNDLE_RETRY=3 \
+   BUNDLE_PATH='vendor/bundle'
 
-COPY --chown=ruby:ruby Gemfile* ./
-RUN bundle install --jobs "$(nproc)" --retry 3
+RUN gem install bundler:${BUNDLER_VERSION} --no-document \
+   && bundle config set --without 'development test' \
+   && bundle install --quiet \
+   && rm -rf $GEM_HOME/cache/*
+
+COPY . ./
+
+############################################################
+FROM ruby:${RUBY_VERSION}
 
 ARG RAILS_ENV="production"
-ARG NODE_ENV="production"
-ENV RAILS_ENV="${RAILS_ENV}" \
-    PATH="${PATH}:/home/ruby/.local/bin" \
-    USER="ruby"
+ARG RAILS_LOG_TO_STDOUT=true
 
-COPY --chown=ruby:ruby . .
+RUN apk -U upgrade && apk add --no-cache libpq netcat-openbsd tzdata\
+   && rm -rf /var/cache/apk/* \
+   && adduser --disabled-password app-user
+# --disabled-password: don't assign a pwd, so cannot login
+USER app-user
 
-CMD ["bash"]
+COPY --from=builder --chown=app-user /app /app
 
-###############################################################################
-
-FROM ruby:3.1.2-slim-bullseye AS app
+ENV RAILS_ENV=$RAILS_ENV \
+   BUNDLE_PATH='vendor/bundle' \
+   RAILS_LOG_TO_STDOUT=$RAILS_LOG_TO_STDOUT
 
 WORKDIR /app
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential curl libpq-dev \
-  && rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man \
-  && apt-get clean \
-  && useradd --create-home ruby \
-  && chown ruby:ruby -R /app
-
-USER ruby
-
-COPY --chown=ruby:ruby bin/ ./bin
-RUN chmod 0755 bin/*
-
-ARG RAILS_ENV="production"
-ENV RAILS_ENV="${RAILS_ENV}" \
-    PATH="${PATH}:/home/ruby/.local/bin" \
-    USER="ruby"
-
-COPY --chown=ruby:ruby --from=assets /usr/local/bundle /usr/local/bundle
-COPY --chown=ruby:ruby --from=assets /app/public /public
-COPY --chown=ruby:ruby . .
-
-ENTRYPOINT ["/app/bin/docker-entrypoint-web"]
-
-# make 'docker logs' work
-ENV RAILS_LOG_TO_STDOUT=true
+RUN rm -rf node_modules
 
 EXPOSE 3000
 
-CMD ["rails", "s"]
+ENTRYPOINT ["/app/bin/docker-entrypoint-web"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
