@@ -28,6 +28,13 @@ docker run \
   hello-world
 ```
 
+## Generating this
+
+```
+rails _7.0.3_ new . --database=postgresql --skip-sprockets
+bundle lock --add-platform x86_64-linux
+```
+
 ## Inspiration
 
 I looked at [nickjj/docker-rails-example](https://github.com/nickjj/docker-rails-example) for a lot of code examples! I wanted a base closer to
