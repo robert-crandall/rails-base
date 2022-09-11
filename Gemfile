@@ -70,3 +70,7 @@ group :test do
   gem "selenium-webdriver"
   gem "webdrivers"
 end
+
+gem 'sorbet', :group => :development
+gem 'sorbet-runtime'
+gem 'tapioca', require: false, :group => :development

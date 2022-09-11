@@ -34,6 +34,13 @@ docker run \
 ```
 rails _7.0.3_ new . --database=postgresql --skip-sprockets
 bundle lock --add-platform x86_64-linux
+
+# Gemfile
+gem 'sorbet', :group => :development
+gem 'sorbet-runtime'
+gem 'tapioca', require: false, :group => :development
+
+bundle exec tapioca init
 ```
 
 ## Inspiration
