@@ -21,11 +21,7 @@ docker build -t hello-world .
 docker run \
   --name hello-world \
   -p 3000:3000 \
-  -e SECRET_KEY_BASE={$SECRET_KEY_BASE} \
-  -e POSTGRES_HOST={$POSTGRES_HOST} \
-  -e POSTGRES_USER={$POSTGRES_USER} \
-  -e POSTGRES_PASSWORD={$POSTGRES_PASSWORD} \
-  -e DATABASE={$DATABASE} \
+  --env-file=.env \
   hello-world
 ```
 
